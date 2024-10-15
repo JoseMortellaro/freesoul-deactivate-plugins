@@ -163,6 +163,7 @@ function eos_dp_save_url_settings() {
 		$n     = 0;
 		$urls  = array();
 		$setts = array();
+		$opts_file_suffix = '';
 		foreach ( $rows as $arr ) {
 			$urls[]      = $arr['url'];
 			$setts[ $n ] = array(
@@ -173,6 +174,7 @@ function eos_dp_save_url_settings() {
 			++$n;
 		}
 		if ( 'eos_dp_admin_url' === $_POST['page_slug'] ) {
+			$opts_file_suffix = '_admin';
 			eos_dp_update_fdp_admin_menu(
 				eos_dp_user_headers(
 					array(
@@ -188,6 +190,14 @@ function eos_dp_save_url_settings() {
 			eos_dp_update_option( 'eos_dp_by_rest_api_theme', json_decode( str_replace( '\\', '', sanitize_text_field( $_POST['theme_activation'] ) ), true ) );
 		}
 		eos_dp_update_option( 'eos_dp_new_plugin_activated', false );
+		if( isset( $_POST['notes'] ) ) {
+			$notes = json_decode( str_replace( '\\', '', sanitize_text_field( $_POST['notes'] ) ), true );
+			$notes_md5 = array();
+			foreach( $notes as $key => $value ) {
+				$notes_md5[md5( $key )] = str_replace( get_home_url(), '[home]', sanitize_text_field( $value ) );
+			}
+			eos_dp_save_option_to_filesystem( 'eos_dp_custom_url_notes' . sanitize_key( $opts_file_suffix ), wp_json_encode( $notes_md5  ) );
+		}
 		echo 1;
 		die();
 	}
@@ -222,7 +232,12 @@ function eos_dp_save_admin_settings() {
 	}
 	eos_dp_update_option( 'eos_dp_admin_setts', array_map( 'sanitize_text_field', $from_db ) );
 	if ( isset( $_POST['theme_activation'] ) ) {
-		eos_dp_update_option( 'eos_dp_admin_theme', json_decode( str_replace( '\\', '', sanitize_text_field( $_POST['theme_activation'] ) ), true ) );
+		$theme_activation_opts = eos_dp_get_option( 'eos_dp_admin_theme' );
+		$theme_activation_post = json_decode( str_replace( '\\', '', sanitize_text_field( $_POST['theme_activation'] ) ), true );
+		foreach( $theme_activation_post as $key => $value ) {
+			$theme_activation_opts[sanitize_text_field( $key )] = $value ? 1 : false;
+		}
+		eos_dp_update_option( 'eos_dp_admin_theme', $theme_activation_opts );
 	}
 	eos_dp_update_fdp_admin_menu(
 		eos_dp_user_headers(
@@ -770,6 +785,20 @@ function eos_dp_pro_auto_settings_admin( $post_args = false, $plugins = false ) 
 		}
 	}
 	if ( $plugins ) {
+		$opts = function_exists( 'eos_dp_pro_get_option' ) ? eos_dp_pro_get_option( 'eos_dp_pro_main' ) : false;
+		$sleep_time = 300000;
+		if( $opts ) {
+			$opts = isset( $opts['eos_dp_general_setts'] ) ? $opts['eos_dp_general_setts'] : array();
+			$sleep_times = array(
+				'very_fast' => 0,
+				'fast' => 100000,
+				'medium' => 300000,
+				'slow' => 600000,
+				'very_slow' => 1000000
+			);
+			$sleep_time = isset( $opts['autosuggestion_speed'] ) && in_array( sanitize_text_field( $opts['autosuggestion_speed'] ), array_keys( $sleep_times ) ) ? $sleep_times[ sanitize_text_field( $opts['autosuggestion_speed'] ) ] : 300000;
+	
+		}
 		$time           = microtime( 1 );
 		$plugins        = array_slice( $plugins, $offset, 4 );
 		$unused_plugins = array();
@@ -1445,7 +1474,7 @@ function eos_dp_check_license_status() {
 	if ( FDPProLicenseManager::CheckWPPlugin( $licenseCode, $licenseEmail, $error, $responseObj, EOS_DP_PRO_PLUGIN_FILE ) ) {
 		$expire_date          = isset( $responseObj->expire_date ) && $responseObj->expire_date ? $responseObj->expire_date : false;
 		$support_date         = isset( $responseObj->support_end ) && $responseObj->support_end ? $responseObj->support_end : false;
-		$response['is_valid'] = isset( $responseObj->is_valid ) && $responseObj->is_valid ? esc_html__( 'License successfully vefified', 'eos-dp-pro' ) : esc_html__( 'License not valid', 'eos-dp-pro' );
+		$response['is_valid'] = isset( $responseObj->is_valid ) && $responseObj->is_valid ? esc_html__( 'License successfully verified', 'eos-dp-pro' ) : esc_html__( 'License not valid', 'eos-dp-pro' );
 		$response['updates']  = $expire_date ? sprintf( esc_html__( 'This license will expire on %s.' ), $expire_date ) : sprintf( esc_html__( 'The access to updates was expired on %s', 'eos-dp-pro' ), $expire_date );
 		$response['support']  = $support_date ? sprintf( esc_html__( 'The access to premium support will expire on %s.' ), $support_date ) : sprintf( esc_html__( 'The access to premium support was expired on %s', 'eos-dp-pro' ), $support_date );
 		echo wp_json_encode( $response );
@@ -1577,7 +1606,7 @@ function eos_dp_save_option_to_filesystem( $option, $value ) {
 		$arrFiles = glob( $upload_dirs['basedir'] . '/FDP/fdp-options/' . sanitize_key( substr( md5( $option ), 0, 8 ) ) . '*.json' );
 		foreach ( $arrFiles as $file ) {
 			if ( file_exists( $file ) ) {
-				unlink( $file );
+				wp_delete_file( $file );
 			}
 		}
 		return $wp_filesystem->put_contents(
@@ -1603,7 +1632,7 @@ function eos_dp_from_filesystem_to_db( $option, $value ) {
 					unset( $main_opts[ 'skip_db_for_' . str_replace( 'eos_dp_', '', $option ) ] );
 				}
 				if ( eos_dp_update_option( 'eos_dp_opts', $main_opts ) ) {
-					unlink( $file );
+					wp_delete_file( $file );
 					break;
 				}
 			}

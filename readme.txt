@@ -2,9 +2,9 @@
 
 Contributors:      giuse
 Requires at least: 4.6
-Tested up to:      6.5
+Tested up to:      6.6
 Requires PHP:      7.2
-Stable tag:        2.2.5
+Stable tag:        2.3.1
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Tags:              cleanup, speed optimization, performance, debugging, dequeue
@@ -54,7 +54,7 @@ If on a specific page you keep active only the plugins that you really need, mos
 ⭐ Deactivate plugins on <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/singles/">specific pages, posts, custom posts</a>, <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/post-types/">post types</a>, <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/archives/">archives</a>, <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/term-archives/">term archives</a>, <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/search/">search results page</a>, <a href="https://freesoul-deactivate-plugins.com/documentation/device/">devices</a>
 ⭐ <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/backend">Deactivate plugins and the theme on specific backend pages</a>
 ⭐ Deactivate the JavaScript execution for problem solving (preview on front-end)
-⭐ Deactivate plugins by custom URL both for <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/custom-urls/">frontend</a> and backend
+⭐ Deactivate plugins by custom URL on the <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/custom-urls/">frontend</a>
 ⭐ Have an automatic suggestion about the unused plugins for the homepage and the backend
 ⭐ Change plugins firing order
 ⭐ Create a functional plugin in no time
@@ -77,6 +77,8 @@ and much more.
 ⭐ Stylesheests and scripts deactivation of remaining active plugins, theme and core
 ⭐ Import/Export FDP settings
 ⭐ Bulk actions to activate/deactivate plugins in the FDP settings
+⭐ Deactivate plugins in the <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/backend/">backend</a>
+⭐ Deactivate plugins by custom URL on the <a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/backend/">backend</a>
 ⭐ Plugins deactivation by logged and unlogged user
 ⭐ Automatic GTMetrix and Google PSI reports generation
 
@@ -153,8 +155,10 @@ For any question or if something doesn't work, don't hesitate to open a thread o
 == Changelog ==
 
 
-= 2.2.5 =
-* Fix: Conflict with the Boost functionality of Jetpack.
+= 2.3.1 =
+* Fixed: theme deactivation not stable when saving the Singles Backend settings (PRO)
+
+
 
 
 *<a href="https://freesoul-deactivate-plugins.com/how-deactivate-plugiins-on-specific-pages/change-log/">Complete Change Log</a>

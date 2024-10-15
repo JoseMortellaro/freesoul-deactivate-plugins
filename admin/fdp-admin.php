@@ -119,7 +119,6 @@ if ( eos_dp_is_fdp_page() ) {
 		array( array( 'eos_dp_reset_settings' ), 'pages/eos-dp-reset.php' ),
 		array( array( 'eos_dp_experiments' ), 'pages/eos-dp-experiments.php' ),
 		array( array( 'eos_dp_help' ), 'pages/eos-dp-help.php' ),
-		array( array( 'eos_dp_hireus' ), 'pages/eos-dp-hireus.php' ),
 		array( array( 'eos_dp_addons' ), 'pages/eos-dp-addons.php' ),
 		array( array( 'eos_dp_create_plugin' ), 'pages/eos-dp-create-plugin.php' ),
 		array( array( 'eos_dp_favorite_plugins' ), 'pages/eos-dp-favorite-plugins.php' ),
@@ -482,6 +481,7 @@ function eos_dp_admin_head() {
 	<style id="fdp-plugin-filter-css" type="text/css"></style>
 	<style id="fdp-inline-backend-css" type="text/css">
 	ul#wf-onboarding-banner{display: none !important}
+	.fdp [class^='cdp-'], .fdp [class*=' cdp-']{display:none !important}
 	.fdp-plugins-filter-list li:hover{opacity:0.7}
 	.fdp-no-jquery #wpwrap #wpcontent #wpbody #wpbody-content .notice.fdp-no-jquery{display:block !important}
 	.fdp #adminmenumain [href="#wpbody-content"]{position:absolute;top:-1000em}
@@ -940,14 +940,16 @@ add_action(
 					}
 					if ( ! is_multisite() && current_user_can( 'update_core' ) ) {
 						$update_data            = isset( $update_data ) ? $update_data : wp_get_update_data();
-						$nums['menu-dashboard'] = sprintf(
-							__( 'Updates %s' ),
-							sprintf(
-								'<span class="update-plugins count-%s"><span class="update-count">%s</span></span>',
-								$update_data['counts']['total'],
-								number_format_i18n( $update_data['counts']['total'] )
-							)
-						);
+						if( isset( $nums['menu-dashboard'] ) && false !== strpos( $nums['menu-dashboard'], 'update' ) ) {
+							$nums['menu-dashboard'] = sprintf(
+								__( 'Updates %s' ),
+								sprintf(
+									'<span class="update-plugins count-%s"><span class="update-count">%s</span></span>',
+									$update_data['counts']['total'],
+									number_format_i18n( $update_data['counts']['total'] )
+								)
+							);
+						}
 					}
 					$fdp_admin_menu       = eos_dp_get_option( 'eos_dp_admin_menu' );
 					$fdp_admin_submenu    = eos_dp_get_option( 'eos_dp_admin_submenu' );
@@ -1269,7 +1271,6 @@ add_action(
 );
 
 add_action( 'admin_notices', function() {
-	return; // This notice will be visible with the future versions of FDP PRO.
 	if( function_exists( 'fdp_is_plugin_globally_active' ) && fdp_is_plugin_globally_active( 'freesoul-deactivate-plugins-pro/freesoul-deactivate-plugins-pro.php' ) ) {
 		$fdp_pro_integrity = eos_dp_check_pro_files_integrity();
 		if( ! $fdp_pro_integrity ) {

@@ -84,7 +84,7 @@ function eos_dp_scripts() {
 					update_user_meta( get_current_user_id(), 'dismissed_wp_pointers', implode( ',', $all_dismissed ) );
 					wp_enqueue_style( 'wp-pointer' );
 					wp_localize_script( 'wp-pointer', 'fdpWpPointer', array( 'dismiss_text' => esc_html__( "Don't show again", 'freesoul-deactivate-plugins' ) ) );
-					wp_enqueue_script( 'fdp-pointer', EOS_DP_PLUGIN_URL . '/admin/assets/js/fdp-pointers.js', array( 'wp-pointer' ) );
+					wp_enqueue_script( 'fdp-pointer', EOS_DP_PLUGIN_URL . '/admin/assets/js/fdp-pointers.js', array( 'wp-pointer' ), null, true );
 					wp_localize_script( 'fdp-pointer', 'fdpPointer', $valid_pointers );
 					$rtl = is_rtl() ? '-rtl' : '';
 					wp_enqueue_style( 'pointer-css', includes_url() . 'css/wp-pointer' . $rtl . '.min.css' );
@@ -97,7 +97,7 @@ function eos_dp_scripts() {
 		$deps[] = 'jquery-ui-draggable';
 		$deps[] = 'jquery-ui-sortable';
 	}
-	wp_enqueue_script( 'eos-dp-backend', EOS_DP_MAIN_JS . '.js', $deps, false, true );
+	wp_enqueue_script( 'eos-dp-backend', EOS_DP_MAIN_JS . '.js', $deps, null, true );
 	wp_localize_script( 'eos-dp-backend', 'eos_dp_js', $params );
 }
 
@@ -169,7 +169,7 @@ function eos_dp_plugin_add_settings_link( $links ) {
 		'<a class="eos-dp-help" href="' . EOS_DP_DOCUMENTATION_URL . '" target="_blank" rel="noopener">' . esc_html__( 'Documentation', 'freesoul-deactivate-plugins' ) . '</a>'
 	);
 	if( defined( 'FDP_PRO_ACTIVE' ) && FDP_PRO_ACTIVE ) {
-		$fdp_links[] = '<a href="https://support.freesoul-deactivate-plugins.com/" target="_fdp_premium_support" rel="noopener">' . esc_html( 'Support', 'freesoul-deactivate-plugins' ) . '</a>';
+		$fdp_links[] = '<a href="https://support.freesoul-deactivate-plugins.com/" target="_fdp_premium_support" rel="noopener">' . esc_html__( 'Support', 'freesoul-deactivate-plugins' ) . '</a>';
 
 	}
 	else {
@@ -196,7 +196,7 @@ function eos_dp_redirect_to_settings() {
 		// if the plugin was updated and we need to update also the mu-plugin.
 		define( 'EOS_DP_DOING_MU_UPDATE', true );
 		if ( file_exists( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' ) ) {
-			unlink( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' );
+			wp_delete_file( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' );
 		}
 		require EOS_DP_PLUGIN_DIR . '/plugin-activation.php';
 		eos_dp_update_option( 'eos_dp_version', EOS_DP_VERSION );
@@ -232,7 +232,15 @@ function eos_dp_admin_notices() {
 				$message = '<p><h1>' . sprintf( esc_html__( 'Very important file missing. First, refresh this page, if you still see this message, disable Freesoul Deactivate Plugins and activate it again. If nothing helps, copy the file %1$s and put it into the directory %2$s', 'freesoul-deactivate-plugins' ), '/wp-content/plugins/freesoul-deactivate-plugins/mu-plugins/eos-deactivate-plugins.php', 'wp-content/mu-plugins/' ) . '</h1></p>';
 			} elseif ( $mu_exists && ! defined( 'EOS_DP_MU_VERSION' ) ) {
 				$class   = 'error';
-				$message = '<p><h1>' . sprintf( esc_html__( 'Issue detected. It looks the file %s has been modified.', 'freesoul-deactivate-plugins' ), WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php', WPMU_PLUGIN_DIR ) . '</h1></p>';
+				if( defined( 'FDP_EXCLUDE_MU_BACKEND' ) && FDP_EXCLUDE_MU_BACKEND ) {
+					$message = '<p><h1>' . esc_html__( 'FDP will disable no plugins in the backend because of:', 'freesoul-deactivate-plugins' ) . '</h1></p>';
+					$message .= "<div style=\"padding:10px;background:black;color:white\"><pre>define( 'FDP_EXCLUDE_MU_BACKEND', " . esc_attr( json_encode( FDP_EXCLUDE_MU_BACKEND ) ) . ");</pre></div>";
+				}
+				else{
+					$message = '<p><h1>' . sprintf( esc_html__( 'Issue detected. It looks the file %s has been modified.', 'freesoul-deactivate-plugins' ), WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php', WPMU_PLUGIN_DIR ) . '</h1></p>';
+				}
+				
+
 			} elseif ( defined( 'EOS_DP_MU_VERSION' ) && EOS_DP_MU_VERSION !== EOS_DP_VERSION ) {
 				$class    = 'warning';
 				$message  = '<p>' . esc_html__( 'Issue detected. Refresh this page. If you still see this message disable Freesoul Deactivate Plugins (only disable NOT DELETING it, or you will lose all the options), then activate it and refresh again this page.', 'freesoul-deactivate-plugins' ) . '</p>';
@@ -244,7 +252,9 @@ function eos_dp_admin_notices() {
 				echo wp_kses(
 					$message,
 					array(
+						'pre' => array(),
 						'h1' => array(),
+						'div'  => array(),
 						'p'  => array(),
 						'a'  => array(
 							'href'   => array(),
@@ -346,19 +356,8 @@ function eos_dp_options_page() {
 			esc_attr( isset( $_GET['page'] ) && $menu_page[4] === sanitize_text_field( $_GET['page'] ) ? $menu_page[5] : '__return_false' ),
 			absint( $menu_page[6] ) );
 	}
-	if( !is_multisite() && ! defined( 'EOS_DP_PRO_VERSION' ) ) {
-		add_submenu_page( 
-			'eos_dp_menu',
-			esc_html__( 'Hire us', 'freesoul-deactivate-plugins' ),
-			esc_html__( 'Hire us', 'freesoul-deactivate-plugins' ),
-			$capability,
-			'eos_dp_hireus',
-			isset( $_GET['page'] ) && 'eos_dp_hireus' === sanitize_text_field( $_GET['page'] ) ? 'eos_dp_hireus_callback' : '__return_false',
-			250 
-		);
-	}
 	if( ( ! defined( 'FDP_PRO_ACTIVE' ) || true !== FDP_PRO_ACTIVE ) && isset( $GLOBALS['submenu'] ) ) {
-		$GLOBALS['submenu']['eos_dp_menu'][] = array( esc_html( 'Upgrade', 'freesoul-deactivate-plugins' ), $capability, FDP_STORE_URL );
+		$GLOBALS['submenu']['eos_dp_menu'][] = array( esc_html__( 'Upgrade', 'freesoul-deactivate-plugins' ), $capability, FDP_STORE_URL );
 	}
 	if ( 'eos_dp_admin' === eos_dp_current_fdp_page() && isset( $GLOBALS['menu'] ) && isset( $GLOBALS['submenu'] ) ) {
 		$GLOBALS['fdp_admin_menu']    = $GLOBALS['menu'];
@@ -751,7 +750,6 @@ function eos_dp_is_fdp_page() {
 				'eos_dp_favorite_plugins',
 				'eos_dp_firing_order',
 				'eos_dp_help',
-				'eos_dp_hireus',
 				'eos_dp_addons',
 				'eos_dp_hooks',
 				'eos_dp_reset_settings',
@@ -1171,7 +1169,7 @@ function eos_dp_delete_folder( $dirPath ) {
 				if ( is_dir( $value ) ) {
 					rmdir( $value );
 				} else {
-					unlink( $value );
+					wp_delete_file( $value );
 				}
 			}
 		}
@@ -1535,7 +1533,7 @@ function eos_dp_menu_items(){
 				'active_if' => array( 'eos_dp_url', 'eos_dp_admin_url', 'eos_dp_translation_urls' ),
 				'subitems'  => array( 'eos_dp_url', 'eos_dp_admin_url', 'eos_dp_translation_urls' ),
 				'href'      => admin_url( 'admin.php?page=eos_dp_url' ),
-				'file'      => $menu_file . 'frontend-urls.php',
+				'file'      => $menu_file . 'custom-urls.php',
 			),
 			'backend'      => array(
 				'title'     => __( 'Backend', 'freesoul-deactivate-plugins' ),
@@ -1608,6 +1606,29 @@ function eos_dp_check_pro_files_integrity() {
 		if( defined( 'FDP_PRO_INTEGRITY_KEY' ) && md5( $n ) !== FDP_PRO_INTEGRITY_KEY ) {
 			return true;
 		}
+	}
+	return false;
+}
+
+/**
+ * Get option from filesystem.
+ *
+ * @since 2.2.6
+ */
+function eos_dp_get_option_from_file( $option_name ) {
+	$upload_dirs = wp_upload_dir();
+	$options_file = false;
+	$files = scandir( $upload_dirs['basedir'] . '/FDP/fdp-options/' );
+	if( $files && ! empty( $files ) ) {
+		foreach( $files as $file ) {
+			if( false !== strpos( $file, sanitize_key( substr( md5( $option_name ), 0, 8 ) ) . '-key-' ) ) {
+				$options_file = $file;
+				break;
+			}
+		}
+	}
+	if( $options_file ) {
+		return json_decode( str_replace( '}"', '}', str_replace( '"{', '{', stripslashes( sanitize_text_field( file_get_contents( $upload_dirs['basedir'] . '/FDP/fdp-options/' . $options_file ) ) ) ) ), true );
 	}
 	return false;
 }

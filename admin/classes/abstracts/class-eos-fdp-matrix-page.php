@@ -82,7 +82,7 @@ abstract class Eos_Fdp_Matrix_Page extends Eos_Fdp_Plugins_Manager_Page {
 		foreach ( $active_plugins as $p ) {
 			if ( isset( $plugins[ $p ] ) ) {
 				$plugin            = $plugins[ $p ];
-				$plugin_name       = function_exists( 'eos_dp_get_plugin_name_by_slug' ) ? strtoupper( sanitize_title( eos_dp_get_plugin_name_by_slug( $p ) ) ) : strtoupper( sanitize_title( dirname( $p ) ) );
+				$plugin_name       = function_exists( 'eos_dp_get_plugin_name_by_slug' ) ? strtoupper( sanitize_text_field( eos_dp_get_plugin_name_by_slug( $p ) ) ) : strtoupper( sanitize_text_field( dirname( $p ) ) );
 				$plugin_name       = str_replace( '-', ' ', $plugin_name );
 				$plugin_name_short = substr( $plugin_name, 0, 28 );
 				$plugin_name_short = $plugin_name === $plugin_name_short ? $plugin_name : $plugin_name_short . ' ...';

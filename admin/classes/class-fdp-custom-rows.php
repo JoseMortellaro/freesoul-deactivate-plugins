@@ -74,13 +74,11 @@ class FDP_Custom_Rows_Page extends Eos_Fdp_Matrix_Page {
 		$this->home_url = get_home_url();
 		?>
 	<style id="fdp-custom-rows-css">
-	.fdp-exact-filter{
-	  margin-left: 15px;
-	  margin-top: 3px;
-	}
-	.fdp-exact-filter-off{
-	  opacity:0.6
-	}
+	.fdp-exact-filter{margin-left:15px;margin-top:3px}
+	.fdp-exact-filter-off{opacity:0.6}
+	#eos-dp-setts .eos-dp-post-name-wrp{padding-top:20px;padding-bottom:12px;border-left:none}
+	#eos-dp-setts input.eos-dp-row-notes{width:100%}
+	#eos-dp-setts input.eos-dp-row-notes:focus{border-color:transparent;outline:none;box-shadow:none}
 	</style>
 	<h2><?php esc_html_e( 'Uncheck the plugins you want to disable depending on the URL', 'freesoul-deactivate-plugins' ); ?></h2>
 		<h2><span class="dashicons dashicons-warning"></span><?php esc_html_e( 'It will work only for the FRONTEND', 'freesoul-deactivate-plugins' ); ?></h2>
@@ -96,11 +94,15 @@ class FDP_Custom_Rows_Page extends Eos_Fdp_Matrix_Page {
 	public function tableBody( $page_slug ) {
 		$row   = 0;
 		$urlsN = count( $this->urls );
+		$opts_file_suffix = 'eos_dp_admin_url' === $page_slug ? '_admin' : '';
+		$notes_md5 = eos_dp_get_option_from_file( 'eos_dp_custom_url_notes' . $opts_file_suffix );
+		$notes = array();
 		do_action( 'fdp_before_table_rows' );
 		do_action( 'fdp_before_table_rows_' . sanitize_key( $page_slug ) );
 		$h_pattern = isset( $_GET['pattern'] ) ? sanitize_text_field( urldecode( $_GET['pattern'] ) ) : false; //@codingStandardsIgnoreLine.
 		// Sanitization applied after urldecode.
 		foreach ( $this->urls as $urlA ) {
+			$note = isset( $urlA['url'] ) && isset( $notes_md5[md5( $urlA['url'] )] )? $notes_md5[md5( $urlA['url'] )] : '';
 			?>
 	  <tr class="eos-dp-url eos-dp-post-row
 			<?php
@@ -110,18 +112,23 @@ class FDP_Custom_Rows_Page extends Eos_Fdp_Matrix_Page {
 			?>
 		">
 		<td class="eos-dp-post-name-wrp">
+		  <input type="text" class="eos-dp-row-notes" placeholder="<?php esc_attr_e( 'Write here your notes for this row','freesoul-deactivate-plugins-pro' ); ?>" value="<?php echo esc_attr( $note ); ?>"/>
 		  <span class="eos-dp-not-active-wrp"><input title="<?php esc_attr_e( 'Activate/deactivate all plugins for this URL', 'freesoul-deactivate-plugins' ); ?>" class="eos-dp-global-chk-row" type="checkbox" /></span>
 		  <span class="dashicons dashicons-move" title="<?php esc_attr_e( 'Move it up to assign higher priority', 'freesoul-deactivate-plugins' ); ?>"></span>
 			  <?php if ( defined( 'FDP_PRO_ACTIVE' ) && FDP_PRO_ACTIVE ) { ?>
 		  <span class="hover fdp-exact-filter<?php echo isset( $urlA['f'] ) && '1' === $urlA['f'] ? '' : ' fdp-exact-filter-off'; ?> dashicons dashicons-filter" title="<?php esc_attr_e( 'Disable exactly the plugins of this row/filter the plugins of this row and take into account also other settings.', 'freesoul-deactivate-plugins' ); ?>"></span>
 		  <?php } ?>
-		  <input type="text" class="eos-dp-url-input" title="<?php echo isset( $urlA['url'] ) ? esc_attr( $urlA['url'] ) : ''; ?>" placeholder="<?php echo wp_kses_post( sprintf( __( 'Write here the URL', 'freesoul-deactivate-plugins' ), esc_url( $this->home_url ) ) ); ?>" value="<?php echo isset( $urlA['url'] ) ? esc_attr( $urlA['url'] ) : ''; ?>" />
+		  <input type="text" class="eos-dp-url-input" title="<?php echo isset( $urlA['url'] ) ? esc_attr( $urlA['url'] ) : ''; ?>" placeholder="<?php echo wp_kses_post( sprintf( apply_filters( 'fdp_custom_row_placeholder', __( 'Write here the URL', 'freesoul-deactivate-plugins' ) ), esc_url( $this->home_url ) ) ); ?>" value="<?php echo isset( $urlA['url'] ) ? esc_attr( $urlA['url'] ) : ''; ?>" />
 			  <?php if ( isset( $urlA['needs_url'] ) && absint( $urlA['needs_url'] ) > 0 ) { ?>
 		  <span class="eos-dp-ncu-wrn dashicons dashicons-warning" title="<?php echo wp_kses_post( sprintf( __( 'This URL covers the post ID %s. It was not possibe to manage it with the Singles settings.', 'freesoul-deactivate-plugins' ), esc_html( $urlA['needs_url'] ) ) ); ?>"></span>
 		  <?php } ?>
-		  <span class="eos-dp-delete-url dashicons dashicons-trash hover" title="<?php esc_attr_e( 'Delete', 'freesoul-deactivate-plugins' ); ?>"></span>
-		  &nbsp;&nbsp;<a class="eos-dp-copy" href="#"><span class="dashicons dashicons-admin-page" style="font-size:30px"></span></a>
-		  &nbsp;&nbsp;<a class="eos-dp-paste" href="#"><span class="dashicons dashicons-category" style="font-size:30px"></span></a>
+		  <span class="eos-dp-delete-url dashicons dashicons-trash hover fdp-has-tooltip" title="<?php esc_attr_e( 'Delete', 'freesoul-deactivate-plugins' ); ?>">
+		  <div class="fdp-tooltip"><?php esc_html_e( 'Delete this row', 'freesoul-deactivate-plugins' ); ?></div>
+		</span>
+		  &nbsp;&nbsp;<a class="eos-dp-copy fdp-has-tooltip" href="#"><span class="dashicons dashicons-admin-page" style="font-size:30px"></span>
+		  <div class="fdp-tooltip"><?php esc_html_e( 'Copy this row settings', 'freesoul-deactivate-plugins' ); ?></div></a>
+		  &nbsp;&nbsp;<a class="eos-dp-paste fdp-has-tooltip" href="#"><span class="dashicons dashicons-category" style="font-size:30px"></span>
+		  <div class="fdp-tooltip"><?php esc_html_e( 'Paste last copied row settings', 'freesoul-deactivate-plugins' ); ?></div></a>
 		  <span class="eos-dp-x-space"></span>
 		</td>
 			  <?php

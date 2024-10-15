@@ -131,7 +131,11 @@ function eos_dp_navigation() {
 	<?php
 	do_action( 'eos_dp_before_settings_nav' );
 	$globally_active = eos_dp_active_plugins();
-	$active_plugins  = absint( count( $globally_active ) );	
+	if( defined( 'EOS_DP_PRO_PLUGIN_BASE_NAME' ) && in_array( EOS_DP_PRO_PLUGIN_BASE_NAME, $globally_active ) ) {
+		unset( $globally_active[array_search( EOS_DP_PRO_PLUGIN_BASE_NAME, $globally_active )] );
+		$globally_active = array_values( $globally_active );
+	}
+	$active_plugins  = absint( count( $globally_active ) );
 	if ( in_array(
 		$_GET['page'],
 		apply_filters(
@@ -179,10 +183,15 @@ function eos_dp_navigation() {
 						<li><br /></li>
 					<?php
 					for ( $lin = max( 1, ( $l * $g ) );$lin <= min( $active_plugins, ( ( $n * $g ) - 1 ) );++$lin ) {
-						if ( isset( $globally_active[ $lin - 1 ] ) && '' !== $globally_active[ $lin - 1 ] && ( ! isset( $_GET['int_plugin'] ) || sanitize_text_field( $_GET['int_plugin'] ) !== dirname( $globally_active[ $lin - 1 ] ) ) ) {
+						if ( 
+							isset( $globally_active[ $lin - 1 ] ) 
+							&& '' !== $globally_active[ $lin - 1 ] 
+							&& ( ! isset( $_GET['int_plugin'] ) || sanitize_text_field( $_GET['int_plugin'] ) !== dirname( $globally_active[ $lin - 1 ] ) ) 
+						) {
 							?>
 						<li><?php echo sprintf( '%s - %s', esc_html( $lin ), esc_html( strtoupper( eos_dp_get_plugin_name_by_slug( $globally_active[ $lin - 1 ] ) ) ) ); ?></li>
 							<?php
+
 						}
 					}
 					?>

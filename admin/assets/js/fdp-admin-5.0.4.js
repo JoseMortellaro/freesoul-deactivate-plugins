@@ -868,7 +868,8 @@ jQuery(document).ready(function(e) {
           , t = document.querySelectorAll("tr.eos-dp-url")
           , o = ""
           , a = e(".eos-dp-section ").attr("data-page_slug")
-          , d = {};
+          , d = {}
+          , notes = {};
         eos_dp_show_all_plugins();
         for (var i = 0; i < t.length - 1; i += 1) {
             var p = []
@@ -879,6 +880,7 @@ jQuery(document).ready(function(e) {
                     r && (p[c] = r.getAttribute("data-path"))
                 }
             o = e(t[i]).find(".eos-dp-url-input").val(),
+            notes[o] = t[i].getElementsByClassName("eos-dp-row-notes")[0].value,
             void 0 !== n[c - 1] && (d[o] = e(n[c - 1].getElementsByTagName("input")).closest("td").hasClass("eos-dp-active")),
             s[i] = {},
             s[i].url = o,
@@ -892,6 +894,7 @@ jQuery(document).ready(function(e) {
             theme_activation: JSON.stringify(d),
             headers: eos_dp_js.headers,
             setts: JSON.stringify(s),
+            notes: JSON.stringify(notes),
             action: "eos_dp_save_url_settings"
         }),
         !1

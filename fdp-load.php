@@ -123,7 +123,7 @@ register_activation_hook( FDP_PLUGIN_FILE, 'eos_dp_initialize_plugin' );
  */
 function eos_dp_deactivate_plugin() {
 	if ( ! is_multisite() && file_exists( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' ) ) {
-		unlink( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' );
+		wp_delete_file( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' );
 	}
 	if( function_exists( 'eos_dp_update_fdp_cache' ) ) {
 		eos_dp_update_fdp_cache( 'nav', '', true );
@@ -162,7 +162,7 @@ function eos_dp_after_upgrade( $upgrader_object, $options ) {
 		 *
 		 */
 		if ( file_exists( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' ) ) {
-			unlink( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' );
+			wp_delete_file( WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php' );
 		}
 		eos_dp_write_file( EOS_DP_PLUGIN_DIR . '/mu-plugins/eos-deactivate-plugins.php', WPMU_PLUGIN_DIR, WPMU_PLUGIN_DIR . '/eos-deactivate-plugins.php', true );
 		delete_transient( 'eos_dp_changelog_version' );
@@ -217,6 +217,7 @@ function eos_dp_update_plugins_slugs_names(){
  */
 function eos_dp_write_file( $source, $destination_dir, $destination, $update_info = false ) {
 	$writeAccess = false;
+	if( ! function_exists( 'get_filesystem_method' ) ) return;
 	$access_type = get_filesystem_method();
 	if ( $access_type === 'direct' ) {
 		/* you can safely run request_filesystem_credentials() without any issues and don't need to worry about passing in a URL */

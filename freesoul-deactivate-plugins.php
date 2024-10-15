@@ -7,7 +7,7 @@
  * Author URI: https://josemortellaro.com
  * Domain Path: /languages/
  * Text Domain: freesoul-deactivate-plugins
- * Version: 2.2.5
+ * Version: 2.3.1
  *
  * @package Freesoul Deactivate Plugins
  */
@@ -30,20 +30,20 @@ if ( ! is_admin() && defined( 'FDP_EXCLUDE_FRONT' ) && FDP_EXCLUDE_FRONT && isse
 	return;
 }
 
-if( defined( 'FDP_STANDARD_DISABLED' ) && FDP_STANDARD_DISABLED ){
+if( defined( 'FDP_STANDARD_DISABLED' ) && FDP_STANDARD_DISABLED ) {
 	// Don't run if current URL is in the array defined in 'FDP_SKIP_URLS' in wp-config.php.
 	return;
 }
 
 // Definitions.
-define( 'EOS_DP_VERSION', '2.2.5' );
+define( 'EOS_DP_VERSION', '2.3.1' );
 define( 'FDP_PLUGIN_FILE', __FILE__ );
 define( 'EOS_DP_PLUGIN_DIR', untrailingslashit( dirname( __FILE__ ) ) );
 define( 'EOS_DP_PLUGIN_URL', untrailingslashit( plugins_url( '', __FILE__ ) ) );
 define( 'EOS_DP_PLUGIN_BASE_NAME', untrailingslashit( plugin_basename( __FILE__ ) ) );
 define( 'EOS_DP_PLUGINS_DIRNAME', basename( dirname( __DIR__ ) ) );
-define( 'EOS_DP_MAIN_STYLESHEET', EOS_DP_PLUGIN_URL . '/admin/assets/css/fdp-admin-3.9.4' );
-define( 'EOS_DP_MAIN_JS', EOS_DP_PLUGIN_URL . '/admin/assets/js/fdp-admin-5.0.3' );
+define( 'EOS_DP_MAIN_STYLESHEET', EOS_DP_PLUGIN_URL . '/admin/assets/css/fdp-admin-3.9.5' );
+define( 'EOS_DP_MAIN_JS', EOS_DP_PLUGIN_URL . '/admin/assets/js/fdp-admin-5.0.4' );
 define( 'EOS_DP_SETTINGS_JS_URL', EOS_DP_PLUGIN_URL . '/admin/assets/js/fdp-settings-1.1.1.js' );
 
 require EOS_DP_PLUGIN_DIR . '/fdp-load.php'; // FDP Bootstrap file.

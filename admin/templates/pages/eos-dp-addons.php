@@ -23,7 +23,8 @@ function eos_dp_addons_callback() {
 		),
 		'content-no-cache'                => array(
 			'title'    => 'Content No Cache',
-			'type'     => 'free',
+			'type'     => 'premium',
+			'plugin_url' => 'https://shop.josemortellaro.com/downloads/content-no-cache/',
 			'category' => array( 'optimization' ),
 		),
 		'defer-transictional-emails-for-woocommerce' => array(
@@ -58,7 +59,8 @@ function eos_dp_addons_callback() {
 		),
 		'specific-content-for-mobile'     => array(
 			'title'    => 'Specific Content For Mobile',
-			'type'     => 'free',
+			'type'     => 'premium',
+			'plugin_url'     => 'https://specific-content-for-mobile.com/',
 			'category' => array( 'optimization', 'cleanup' ),
 		),
 		'editor-cleanup-for-oxygen'       => array(
@@ -121,7 +123,11 @@ function eos_dp_addons_callback() {
   <section id="fdp-addons">
 	<?php
 	foreach ( $addons as $addon => $arr ) {
-		$icon_url   = 'free' === $arr['type'] || in_array( $addon, array( 'freesoul-deactivate-plugins-pro' ) ) ? 'https://ps.w.org/' . str_replace( '-pro', '', $addon ) . '/assets/icon-256x256.png' : EOS_DP_PLUGIN_URL . '/assets/img/' . $addon . '/icon-256x256.png';
+		$icon_url   = 'free' === $arr['type'] || in_array( $addon, array( 
+			'freesoul-deactivate-plugins-pro', 
+			'specific-content-for-mobile',
+			'content-no-cache'
+		) ) ? 'https://ps.w.org/' . str_replace( '-pro', '', $addon ) . '/assets/icon-256x256.png' : EOS_DP_PLUGIN_URL . '/assets/img/' . $addon . '/icon-256x256.png';
 		$plugin_url = 'free' === $arr['type'] ? 'https://wordpress.org/plugins/' . $addon . '/' : $arr['plugin_url'];
 		?>
   <a class="fdp-addon-link fdp-addon-link-<?php echo 'free' === $arr['type'] ? 'free' : 'premium'; ?>" href="<?php echo esc_url( $plugin_url ); ?>" target="_<?php echo esc_attr( $addon ); ?>" rel="noopener">

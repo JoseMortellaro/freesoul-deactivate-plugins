@@ -253,8 +253,8 @@ abstract class Eos_Fdp_Plugins_Manager_Page {
 			'page_slug' 	 => $this->page_slug,
 			'free'			 => array( 'version' => EOS_DP_VERSION ),
 			'ajaxurl'		 => admin_url( 'admin-ajax.php' ),
-			'max_rows_reached'	 => esc_html( 'You have reached the maximum number of rows available with the free version', 'freesoul-deactivate-plugins' ),
-			'max_limit_reached'	 => esc_html( 'Max limit reached', 'freesoul-deactivate-plugins' )
+			'max_rows_reached'	 => esc_html__( 'You have reached the maximum number of rows available with the free version', 'freesoul-deactivate-plugins' ),
+			'max_limit_reached'	 => esc_html__( 'Max limit reached', 'freesoul-deactivate-plugins' )
 		);
 		if( defined( 'EOS_DP_PRO_VERSION' ) ) {
 			$fdp['pro']['version'] = EOS_DP_PRO_VERSION;

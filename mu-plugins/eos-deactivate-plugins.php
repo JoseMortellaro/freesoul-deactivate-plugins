@@ -2,7 +2,7 @@
 /*
   Plugin Name: freesoul deactivate plugins [fdp]
   Description: mu-plugin automatically installed by freesoul deactivate plugins
-  Version: 2.2.5
+  Version: 2.3.1
   Plugin URI: https://freesoul-deactivate-plugins.com/
   Author: Jose Mortellaro
   Author URI: https://josemortellaro.com/
@@ -10,6 +10,14 @@
 */
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
+
+if( defined( 'FDP_EXCLUDE_MU_BACKEND' ) && FDP_EXCLUDE_MU_BACKEND && is_admin() ) {
+	return;
+}
+
+if( defined( 'FDP_EXCLUDE_MU_FRONTEND' ) && FDP_EXCLUDE_MU_FRONTEND && ! is_admin() ) {
+	return;
+}
 
 $active_plugins = eos_dp_get_option( 'active_plugins' );
 
@@ -36,7 +44,7 @@ if( defined( 'FDP_EMERGENCY_ADMIN_THEME_OFF' ) && FDP_EMERGENCY_ADMIN_THEME_OFF 
 	add_filter( 'template','__return_false',20 );
 }
 
-if( !is_admin() && defined( 'FDP_EXCLUDE_MU' ) && FDP_EXCLUDE_MU && isset( $_GET[FDP_EXCLUDE_MU] ) && 'true' === $_GET[FDP_EXCLUDE_MU] ){
+if( ! is_admin() && defined( 'FDP_EXCLUDE_MU' ) && FDP_EXCLUDE_MU && isset( $_GET[FDP_EXCLUDE_MU] ) && 'true' === $_GET[FDP_EXCLUDE_MU] ){
 	return;
 }
 
@@ -44,7 +52,7 @@ if( is_admin() && isset( $_REQUEST['action'] ) && in_array( sanitize_text_field(
 	return;
 }
 
-define( 'EOS_DP_MU_VERSION','2.2.5' );
+define( 'EOS_DP_MU_VERSION','2.3.1' );
 define( 'EOS_DP_MU_PLUGIN_DIR',untrailingslashit( dirname( __FILE__ ) ) );
 
 
@@ -754,7 +762,7 @@ if(
  *
  */
 function eos_dp_one_place( $plugins, $option_key = 'eos_dp_one_place', $keep_if_matched = true, $update_info = true ){
-	if( isset( $GLOBALS['fdp_uri'] ) ) {
+	if( isset( $GLOBALS['fdp_uri'] ) && ! isset( $_REQUEST['eos_dp_preview'] ) ) {
 		$one_place_plugins = eos_dp_get_option( $option_key );
 		if( $one_place_plugins ) {
 			$one_place_plugins = json_decode( stripslashes( str_replace( '[home]', get_home_url(), sanitize_text_field( $one_place_plugins ) ) ), true );
@@ -939,7 +947,10 @@ if( is_admin()
 			$base_url = 'single_'.get_post_type( $base_urlA[0] );
 		}
 	}
-	if( isset( $adminTheme[$base_url] ) && !$adminTheme[$base_url] ){
+	if( isset( $adminTheme[$base_url] ) && ! $adminTheme[$base_url] ){
+		add_action( 'plugins_loaded','eos_dp_replace_theme',99 );
+	}
+	elseif( isset( $_GET['page'] ) && 'admin.php?page=' . sanitize_text_field( $_GET['page'] ) === $base_url && isset( $adminTheme[sanitize_text_field( $_GET['page'] )] ) && ! $adminTheme[sanitize_text_field( $_GET['page'] )] ) {
 		add_action( 'plugins_loaded','eos_dp_replace_theme',99 );
 	}
 }
@@ -1281,6 +1292,7 @@ function eos_dp_mu_deactivate_by_post_requests( $plugins ){
 		$opts = json_decode( str_replace( '\\','',$opts ),true );
 		if( is_array( $opts ) && !empty( $opts ) ){
 			$o = 0;
+			$post_data = $GLOBALS['fdp_post_data'];
 			foreach( $opts as $url => $post_plugins ){
 					$n = 0;
 					$bools = array();
@@ -1291,8 +1303,8 @@ function eos_dp_mu_deactivate_by_post_requests( $plugins ){
 					foreach( explode( '&',$url ) as $value){
 						if( false !== strpos( $value,'=') ){
 							$arr2 = explode( '=',$value );
-							if( isset( $arr2[1] ) && in_array( $arr2[0],array_keys( $_POST ) ) ){
-								$bools[] = '*' === $arr2[1] || $arr2[1] === $_POST[$arr2[0]] ? 1 : 0;
+							if( isset( $arr2[1] ) && in_array( $arr2[0],array_keys( $post_data ) ) ){
+								$bools[] = '*' === $arr2[1] || $arr2[1] === $post_data[$arr2[0]] ? 1 : 0;
 							}
 							else{
 								$bools[] = 0;
@@ -2718,7 +2730,8 @@ add_action( 'send_headers', function(){
 	 */
 	global $eos_dp_paths;
 	$n = $eos_dp_paths ? count( array_unique( array_filter( $eos_dp_paths ) ) ) : 'none';
-	header( 'Disabled-plugins: '.absint( $n ).' on '.date( 'Y-m-d h:i:s' ) );
+	$pro = defined( 'FDP_PRO_ACTIVE' ) && FDP_PRO_ACTIVE ? '-pro' : '';
+	header( 'Disabled-plugins' . esc_attr( $pro ) . ': '.absint( $n ).' on '.date( 'Y-m-d h:i:s' ) );
 }, 100 );
 
 add_filter( 'wp_php_error_message',function( $message, $error ){
@@ -2879,7 +2892,26 @@ add_action( 'muplugins_loaded',function(){
 		// Run only if FDP PRO is active.
 		eos_dp_filter_active_plugins(  'eos_dp_disabled_plugins_for_logged_users',40,1 );
 		eos_dp_filter_active_plugins(  'eos_dp_disabled_plugins_on_ajax_filter',999 );
-		if( isset( $_POST ) && !empty( $_POST ) && ( !isset( $_REQUEST['action'] ) || 'heartbeat' !== $_REQUEST['action'] ) ){
+
+		$GLOBALS['fdp_post_data'] = false;
+		
+		if( isset( $_POST ) && ! empty( $_POST ) ) {
+			$GLOBALS['fdp_post_data'] = $_POST;
+		}
+		else{
+			$json = file_get_contents( 'php://input' );
+			if( $json && 0 === strpos( $json, '{' ) ) {
+				$GLOBALS['fdp_post_data'] = json_decode( $json, true );
+			}
+		}
+		
+		
+	
+		
+		if( 
+			$GLOBALS['fdp_post_data'] && ! empty( $GLOBALS['fdp_post_data'] ) 
+			&& ( ! isset( $_REQUEST['action'] ) || 'heartbeat' !== $_REQUEST['action'] ) 
+		){
 			eos_dp_filter_active_plugins(  'eos_dp_mu_deactivate_by_post_requests',50 );
 		}
 		if( wp_doing_cron() ){
@@ -2931,4 +2963,26 @@ function eos_dp_is_url_matched( $url, $uri ){
 	$pattern = str_replace( '&','\&',$pattern );
 	preg_match( $pattern,$uri.' ',$matches );
 	return 	( !empty( $matches ) && count( $matches ) - 1 === substr_count( $pattern,'(.*)' ) ) || ( str_replace( array( 'https://','http://','www.' ),array( '','','' ),$url ) === explode( '?',$uri )[0].'?*' );
+}
+
+add_action( 'admin_bar_menu', 'eos_dp_admin_top_bar', 9999 );
+/**
+ * Add FDP items to the admin top bar
+ *
+ * @since 2.2.8
+ */
+function eos_dp_admin_top_bar( $admin_top_bar ) {
+	if( isset( $_GET['post'] ) && absint( $_GET['post'] ) > 0 || ( isset( $GLOBALS['post'] ) && function_exists( 'is_singular' ) && is_singular() ) && current_user_can( 'activate_plugins' ) ) {
+		$post = isset( $_GET['post'] ) && absint( $_GET['post'] ) > 0 ? get_post( absint( $_GET['post'] ) ) : $GLOBALS['post'];
+		if( $post && is_object( $post ) ) {
+			$admin_top_bar->add_menu( array(
+				'id' => 'fdp-admin-top-bar',
+				'title' => 'FDP',
+				'href' => add_query_arg( array( 'page' => 'eos_dp_menu', 'eos_dp_post_type' => $post->post_type, 'eos_dp_post_in' => $post->ID, 'posts_per_page', 1 ), admin_url() ),
+				'meta' => array(
+					'title' => esc_attr__( 'Disable plugins on this page', 'freesoul-deactivate-plugins' )
+				)
+			) );
+		}
+	}
 }
