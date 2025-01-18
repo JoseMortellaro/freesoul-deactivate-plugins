@@ -157,9 +157,8 @@ For any question or if something doesn't work, don't hesitate to open a thread o
 == Changelog ==
 
 
-= 2.3.1 =
-* Fixed: theme deactivation not stable when saving the Singles Backend settings (PRO)
-* Added: FDP critical notifications to the Site Health Tests
+= 3.0.0 =
+* Changed: Updating process
 
 
 
