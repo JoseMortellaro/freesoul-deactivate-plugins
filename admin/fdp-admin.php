@@ -1330,6 +1330,7 @@ add_action( 'admin_init', function() {
 
 add_action( 'fdp_before_main_nav_menu_items', function() {
 	//if( defined( 'FDP_PRO_ACTIVE' ) && FDP_PRO_ACTIVE ) return;
+	return; // todo: uncomment this line when the new offer of FDP PRO is ready
 ?>
 <style id="fdp-offer-css">
 	#fdp-offer-bar{
