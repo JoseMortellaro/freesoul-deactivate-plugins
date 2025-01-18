@@ -1321,3 +1321,57 @@ function eos_dp_admin_inline_style() {
 // Load all the FDP add-ons.
 require_once EOS_DP_PLUGIN_DIR . '/admin/classes/class-fdp-load-addons.php';
 $load_fdp_addons = new FDP_Load_Addons();
+
+// Load the Site Health class and create the Site Health Tests object. To do.
+add_action( 'admin_init', function() {
+	require_once EOS_DP_PLUGIN_DIR . '/admin/classes/class-fdp-site-health.php';
+	$fdp_site_health = new FDP_Site_Health();
+} );
+
+add_action( 'fdp_before_main_nav_menu_items', function() {
+	//if( defined( 'FDP_PRO_ACTIVE' ) && FDP_PRO_ACTIVE ) return;
+?>
+<style id="fdp-offer-css">
+	#fdp-offer-bar{
+		background:#1E2F42;
+		height: 20px;
+		padding-left: 20px;
+		padding-right: 20px;
+		margin-left: -20px;
+		margin-right: -20px;
+		padding-top:10px;
+		padding-bottom:10px;
+		color:#fff;
+		text-align:center
+	}
+	#fdp-offer-bar a{
+		text-transform:uppercase;
+		letter-spacing:2px;
+		font-size:1rem;
+		text-decoration:none;
+		color:#fff;
+	}
+	@media screen and (max-width:1100px){
+		#fdp-offer-bar a{
+			font-size:0.6rem
+		}
+	}
+</style>
+<div id="fdp-offer-bar">
+	<a href="https://shop.freesoul-deactivate-plugins.com/special-offer?ffdpbk=1" target="_fdp_special_offer" rel="noopener">Unlock PRO Power! Get 5 years of FDP PRO License and pay only for 1 year!&nbsp;&nbsp;&nbsp;<span class="button" style="top:-5px;position:relative">Only Available Now!</span></a>
+</div>
+<?php
+} );
+
+add_action( 'admin_init', function() {
+	require_once EOS_DP_PLUGIN_DIR . '/admin/classes/class-fdp-github-plugin-updater.php';
+
+	$github_updater = new Fdp_GitHub_Plugin_Updater(
+		array(
+			'owner'	=> 'JoseMortellaro',
+			'repo'	=> 'freesoul-deactivate-plugins',
+			'slug'	=> EOS_DP_PLUGIN_BASE_NAME,
+			'current_version' => EOS_DP_VERSION
+		)
+	);
+} );
