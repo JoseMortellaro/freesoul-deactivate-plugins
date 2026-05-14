@@ -223,6 +223,7 @@ Info LLM page:
 
 = 2.6.2 =
 * Added: Filter hook to modify the button text of Custom URL rows.
+* Fixed: Conflict with Relenvassi.
 
 
 
