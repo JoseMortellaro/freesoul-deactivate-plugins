@@ -4,7 +4,7 @@ Contributors:      giuse
 Requires at least: 4.6
 Tested up to: 7.0
 Requires PHP:      7.4
-Stable tag:        2.6.2
+Stable tag:        2.6.3
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Tags:              cleanup, speed optimization, performance, debugging, dequeue
@@ -220,6 +220,8 @@ Info LLM page:
 
 == Changelog ==
 
+= 2.6.3 =
+* Ehanced: Fatal errors when a WooCommerce add-on doesn't check properly the presence of WooCommerce function_exists
 
 = 2.6.2 =
 * Added: Filter hook to modify the button text of Custom URL rows.
