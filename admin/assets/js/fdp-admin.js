@@ -715,16 +715,48 @@ jQuery(document).ready(function(e) {
         -1 !== this.className.indexOf("eos-dp-close-actions"))
             return !1
     }),
-    e("#eos-dp-setts input[type=checkbox]").on("mouseenter", function() {
-        e(this).eos_dp_shiftSelectable()
-    }),
-    e("#eos-dp-setts").on("click", "input[type=checkbox]", function() {
-        e(this).closest("td").toggleClass("eos-dp-active").toggleClass("d");
-        var s = e(this).closest("td").hasClass("eos-dp-active") ? 1 : -1;
+    e("#eos-dp-setts").on("click", "input[type=checkbox]", function(s) {
+        var t = e(this);
+        if (t.is(".eos-dp-global-chk-row, .eos-dp-lock-post, .eos-dp-default-post-type"))
+            return;
+        if (s.shiftKey && window.fdp_shift_anchor && window.fdp_shift_anchor !== this) {
+            var o = e(window.fdp_shift_anchor)
+              , a = t.closest("tr");
+            if (o.closest("tr").is(a)) {
+                var d = a.find(".eos-dp-td-chk-wrp input[type=checkbox]").not(".eos-dp-global-chk-row, .eos-dp-lock-post, .eos-dp-default-post-type")
+                  , i = d.index(window.fdp_shift_anchor)
+                  , p = d.index(this);
+                if (i >= 0 && p >= 0) {
+                    var n = o.prop("checked")
+                      , r = Math.min(i, p)
+                      , l = Math.max(i, p)
+                      , c = 0;
+                    window.eos_dp_grouped = !0,
+                    window.eos_dp_last_modified_row = a,
+                    d.slice(r, l + 1).each(function() {
+                        var s = e(this)
+                          , t = s.closest("td")
+                          , o = t.hasClass("eos-dp-active");
+                        s.prop("checked", n),
+                        eos_dp_update_chks(s);
+                        var a = t.hasClass("eos-dp-active");
+                        o !== a && (c += a ? 1 : -1)
+                    }),
+                    a.attr("data-active-plugins", parseInt(a.attr("data-active-plugins")) + c),
+                    a.attr("data-disabled-plugins", parseInt(a.attr("data-disabled-plugins")) - c),
+                    window.fdp_shift_anchor = this,
+                    s.preventDefault();
+                    return
+                }
+            }
+        }
+        window.fdp_shift_anchor = this,
+        t.closest("td").toggleClass("eos-dp-active").toggleClass("d");
+        var o = t.closest("td").hasClass("eos-dp-active") ? 1 : -1;
         window.eos_dp_grouped = !1,
-        window.eos_dp_last_modified_row = e(this).closest("tr"),
-        window.eos_dp_last_modified_row.attr("data-active-plugins", parseInt(window.eos_dp_last_modified_row.attr("data-active-plugins")) + s),
-        window.eos_dp_last_modified_row.attr("data-disabled-plugins", parseInt(window.eos_dp_last_modified_row.attr("data-disabled-plugins")) - s)
+        window.eos_dp_last_modified_row = t.closest("tr"),
+        window.eos_dp_last_modified_row.attr("data-active-plugins", parseInt(window.eos_dp_last_modified_row.attr("data-active-plugins")) + o),
+        window.eos_dp_last_modified_row.attr("data-disabled-plugins", parseInt(window.eos_dp_last_modified_row.attr("data-disabled-plugins")) - o)
     }),
     e(".eos-dp-priority-post-type").on("click", function() {
         var s = e(this);
@@ -1458,51 +1490,7 @@ jQuery(document).ready(function(e) {
     }
     ,
     fdp_synchronize_dependencies()
-}),
-jQuery.fn.eos_dp_shiftSelectable = function() {
-    var e, s = jQuery(this).attr("class");
-    if (void 0 !== s) {
-        var t = s.split(" ");
-        try {
-            $boxes = jQuery("." + t[0] + ",." + t[1])
-        } catch (o) {
-            throw "." + t[0] + ",." + t[1] + " is not a CSS selector"
-        }
-        $boxes.on("click", function(s) {
-            if (s.shiftKey) {
-                if (!e) {
-                    e = this;
-                    return
-                }
-                for (var t = jQuery(this).attr("class").split(" "), o = jQuery(e).attr("class"), a = "", d = [], i = 0; i < t.length; i += 1)
-                    0 > o.indexOf(t[i]) ? a = t[i] : d.push(t[i]);
-                if (sameClass = "." + d.join(","),
-                "." === d || window.eos_dp_grouped)
-                    e = null,
-                    $boxes = null;
-                else {
-                    var p = jQuery(e).parent(".eos-dp-td-chk-wrp")
-                      , n = p.parent().attr("class")
-                      , r = jQuery(sameClass).parent(".eos-dp-td-chk-wrp").parent().index(p.parent())
-                      , l = jQuery(sameClass).parent(".eos-dp-td-chk-wrp").parent().index(jQuery(this).parent(".eos-dp-td-chk-wrp").parent())
-                      , c = jQuery(sameClass).slice(Math.max(0, Math.min(r, l)), Math.max(r, l) + 1);
-                    if (n.indexOf("eos-dp-active") > 0)
-                        var h = !1;
-                    else
-                        var h = !0;
-                    c.attr("checked", h).trigger("change"),
-                    c.parent(".eos-dp-td-chk-wrp").parent().attr("class", n),
-                    window.eos_dp_grouped = !0
-                }
-            }
-        }),
-        $boxes.on("mouseleave", function(s) {
-            s.shiftKey || (e = null,
-            $boxes = null)
-        })
-    }
-}
-;
+});
 function eos_dp_set_cookie(e, s, o) {
     var t, n;
     o ? ((t = new Date).setTime(t.getTime() + 24 * o * 60 * 60 * 1e3),
