@@ -3121,10 +3121,3 @@ function eos_dp_admin_top_bar( $admin_top_bar ) {
 		}
 	}
 }
-
-?>
-
-<i class="fa-solid fa-circle-check" style="color: #ce902b;"></i> 2 inch gold coins
-<i class="fa-solid fa-circle-check" style="color: #ce902b;"></i> Gospel message on one side
-<i class="fa-solid fa-circle-check" style="color: #ce902b;"></i> Runner design on the front
-<i class="fa-solid fa-circle-check" style="color: #ce902b;"></i> Built to be kept, read, and shared
