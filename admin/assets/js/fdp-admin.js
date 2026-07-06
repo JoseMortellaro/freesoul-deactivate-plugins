@@ -915,7 +915,7 @@ jQuery(document).ready(function(e) {
             s[i] = {},
             s[i].url = o,
             s[i].plugins = p.join(","),
-            s[i].f = e(t[i]).find(".fdp-exact-filter").hasClass("fdp-exact-filter-off") ? "0" : "1"
+            s[i].f = (n = e(t[i]).find(".fdp-exact-filter")).length ? n.hasClass("fdp-exact-filter-off") ? "0" : "1" : e(t[i]).attr("data-f") || "0"
         }
         return eos_dp_restore_plugins_filter(),
         eos_dp_send_ajax(e(this), {
@@ -1327,7 +1327,9 @@ jQuery(document).ready(function(e) {
         e(".eos-dp-post-row").removeClass("eos-hidden")
     }),
     e("#eos-dp-setts").on("click", ".fdp-exact-filter", function() {
-        e(this).toggleClass("fdp-exact-filter-off")
+        var t = e(this);
+        t.toggleClass("fdp-exact-filter-off"),
+        t.closest("tr").attr("data-f", t.hasClass("fdp-exact-filter-off") ? "0" : "1")
     }),
     e(".fdp-filter-hide-all").on("click", function() {
         e("#fdp-singles-filter span").removeClass("eos-dp-active"),
