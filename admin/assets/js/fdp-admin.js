@@ -221,7 +221,7 @@ function fdp_suggest_plugins(e, s) {
     var t = new XMLHttpRequest
       , o = jQuery(e).closest("tr")
       , a = new FormData
-      , d = void 0 !== eos_dp_js.page && "eos_dp_admin" === eos_dp_js.page ? document.getElementById("eos_dp_pro_auto_settings_admin").value : document.getElementById("eos_dp_pro_auto_settings").value;
+      , d = void 0 !== eos_dp_js.page && fdpIsBackendAdminMatrixPage(eos_dp_js.page) ? document.getElementById("eos_dp_pro_auto_settings_admin").value : document.getElementById("eos_dp_pro_auto_settings").value;
     s.counter = window.eos_dp_autosuggest_counter,
     o.find('td[data-path="' + s.plugins.split(",")[window.eos_dp_autosuggest_counter] + '"]').addClass("fdp-checking-this"),
     plugin_col = o.find('td[data-path="' + s.plugins.split(",")[window.eos_dp_autosuggest_counter] + '"]'),
@@ -467,6 +467,9 @@ function eos_cbi_copy_to_clipboard(e) {
         console.log("Something went wrong trying to copy to the clipboard")
     })
 }
+function fdpIsBackendAdminMatrixPage(page) {
+    return "eos_dp_admin" === page || "eos_dp_admin_by_post_type" === page;
+}
 jQuery(document).ready(function(e) {
     table = document.getElementById("eos-dp-setts"),
     table_head = document.getElementById("eos-dp-table-head"),
@@ -526,7 +529,7 @@ jQuery(document).ready(function(e) {
         e(".eos-dp-post-name-wrp .eos-dp-lock-post").trigger("click"),
         e(this).toggleClass("eos-post-locked")
     }),
-    "eos_dp_admin" === eos_dp_js.page && e("#eos-dp-by-admin-section .eos-dp-td-chk-wrp").on("click", function(s) {
+    fdpIsBackendAdminMatrixPage(eos_dp_js.page) && e("#eos-dp-by-admin-section, #eos-dp-by-admin-post-type-section .eos-dp-td-chk-wrp").on("click", function(s) {
         var t = e(this).closest("td")
           , o = t.hasClass("eos-dp-active")
           , a = s.target.className
@@ -658,7 +661,7 @@ jQuery(document).ready(function(e) {
         microtime = Date.now();
         var i = e(this)
           , p = i.attr("data-page_speed_insights")
-          , n = void 0 !== eos_dp_js.page && "eos_dp_admin" === eos_dp_js.page ? "_admin" : ""
+          , n = void 0 !== eos_dp_js.page && fdpIsBackendAdminMatrixPage(eos_dp_js.page) ? "_admin" : ""
           , r = {
             nonce: e("#eos_dp" + n + "_setts").val() || e("#eos_dp_arch_setts").val(),
             post_type: i.closest(".eos-dp-archive-row").attr("data-post-type"),
@@ -1093,7 +1096,7 @@ jQuery(document).ready(function(e) {
         }),
         !1
     }),
-    e(".eos-dp-save-eos_dp_admin").on("click", function() {
+    e(".eos-dp-save-eos_dp_admin, .eos-dp-save-eos_dp_admin_by_post_type").on("click", function() {
         eos_dp_show_all_plugins(),
         e(".eos-dp-opts-msg").addClass("eos-hidden");
         for (var s = {}, t = {}, o = (e("#eos-dp-by-admin-section"),
@@ -1283,7 +1286,7 @@ jQuery(document).ready(function(e) {
         e("#eos-dp-autosuggest-msg").removeClass("eos-hidden"),
         e("#eos-dp-autosuggest-msg-error").addClass("eos-hidden");
         var s = "undefined" != typeof is_single_post && is_single_post ? e(".eos-dp-post-row td").first() : e(this)
-          , t = void 0 !== eos_dp_js.page && "eos_dp_admin" === eos_dp_js.page
+          , t = void 0 !== eos_dp_js.page && fdpIsBackendAdminMatrixPage(eos_dp_js.page)
           , o = e(this).next(".ajax-loader-img")
           , a = []
           , d = {
